@@ -24,20 +24,18 @@ class TypingThread(QThread):
 
         lines = self.text.splitlines()
 
-        for line in lines:
-            # 确保在行首
-            pyautogui.press('home')
-
+        for i, line in enumerate(lines):
             # 输入当前行
             pyautogui.write(line, interval=0.05)
 
-            # 换行
-            pyautogui.press('enter')
-
-            # 再次回到新行的行首（重点）
-            pyautogui.press('home')
-
-            time.sleep(0.05)
+            # 换行后立即回到新行行首，为下一行输入做准备
+            if i < len(lines) - 1:
+                pyautogui.press('enter')
+                pyautogui.press('home')
+                time.sleep(0.05)
+            else:
+                # 最后一行只换行，不需要 home
+                pyautogui.press('enter')
 
         self.finished.emit()
 
@@ -51,7 +49,7 @@ class KeyboardTyper(QWidget):
         layout = QVBoxLayout(self)
 
         self.text_edit = QTextEdit()
-        self.text_edit.setPlaceholderText("请输入要自动打出的文本（支持多行）")
+        self.text_edit.setPlaceholderText("请输入要自动打出的文本（支持多行）\n\n\n注：因为是模拟键盘输入，请提前切换到英文输入法！！！不兼容中文！！！")
 
         self.start_btn = QPushButton("开始")
         self.start_btn.clicked.connect(self.start_typing)
